@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.sql.Array;
 
 public class Link implements Serializable{
 
@@ -38,7 +37,7 @@ public class Link implements Serializable{
 
 
     //--------------------
-    public void Final_link(Object object, byte msg) throws IOException {
+    /*public void Final_link(Object object, byte msg) throws IOException {
 
         link_pack lhead = new link_pack();
         int msgsize = getObjectSize(object);
@@ -68,7 +67,7 @@ public class Link implements Serializable{
             //              throw;
         }
 
-
+*/
 
 
 
@@ -77,14 +76,14 @@ public class Link implements Serializable{
     public void par_request(byte par, byte sys, byte comp){
 
         param_request_read rq = new param_request_read(par, sys, comp);
-        Final_link(rq, (byte) 20);
+     //   Final_link(rq, (byte) 20);
     }
 
 
     //------------------------------	-------------Установить параметр
     public void set_par(float dat, byte par, byte tpe, byte sys, byte comp) {
                 set_par_link rq = new set_par_link(dat, par, tpe, sys, comp);
-                 Final_link(rq, (byte) 23);
+         //        Final_link(rq, (byte) 23);
                 }
 
     //Передача команды
@@ -92,9 +91,9 @@ public class Link implements Serializable{
     {
 
     }
-        cmd_exec rq = new cmd_exec(cmd, sys, comp);
-        Final_link(rq, (byte)16);
-    }
+   //     cmd_exec rq = new cmd_exec(cmd, sys, comp);
+   //     Final_link(rq, (byte)16);
+
 
 
 public static byte[] serialize (Object object) throws IOException {

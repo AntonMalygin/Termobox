@@ -1,4 +1,5 @@
 package com.example.termobox;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -31,6 +32,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.hwangjr.rxbus.Bus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +79,13 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private static final int Mess_ID20_status = 8; // Запрос чтения бортового параметра struct param_request_read_s
     private static final int Mess_ID16_status = 9; // Пришла команда struct cmd_exec_s
     private static final int Mess_ID17_status = 11; // Подтверждение выполнения команды struct cmd_ack_s
+
+    // Message types sent from the BluetoothChatService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
 
     private boolean flag_clock_synx=false; // флаг для синхронизации часов с текущим временем телефона
 
@@ -162,6 +172,8 @@ public class MainActivity<Link> extends AppCompatActivity implements
             setListAdapter(BT_BOUNDED);
         }
 
+        RxBus.get().register(this);
+
     }
 
 
@@ -178,6 +190,9 @@ public class MainActivity<Link> extends AppCompatActivity implements
         if (connectedThread != null) {
             connectedThread.cancel();
         }
+
+        RxBus.get().unregister(this);
+
     }
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -302,6 +317,17 @@ public class MainActivity<Link> extends AppCompatActivity implements
         } else {
             accessLocationPermission();
             bluetoothAdapter.startDiscovery();
+        }
+    }
+
+    public static final class RxBus {
+        private static Bus sBus;
+
+        public static synchronized Bus get() {
+            if (sBus == null) {
+                sBus = new Bus();
+            }
+            return sBus;
         }
     }
 
@@ -515,12 +541,18 @@ public class MainActivity<Link> extends AppCompatActivity implements
             while (isConnected){
                 try {
 
-
+                    // Read from the InputStream
                     numBytes = mmInStream.read(mmBuffer);
 
+                    // Send the obtained bytes to the UI Activity
+                    outHandler.obtainMessage(MainActivity.MESSAGE_READ, numBytes,
+                            -1, mmBuffer).sendToTarget();
 
-
-
+                    try {//delay for full packet receiving
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
 
 
@@ -545,15 +577,18 @@ public class MainActivity<Link> extends AppCompatActivity implements
             }
         }
 
-        public void write(byte[] bytes) {
+        public void write(byte[] buffer) {
 
             if (mmOutStream!=null) {
 
                 try {
-                    mmOutStream.write(bytes);
-                    // b     the data.
-                    // off   the start offset in the data.
-                    // len   the number of bytes to write.
+                    mmOutStream.write(buffer);
+
+                    RxBus.get().post(buffer);
+
+                    // Share the sent message back to the UI Activity
+                    outHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
+                            buffer).sendToTarget();
 
                     mmOutStream.flush();
                 } catch (IOException e) {

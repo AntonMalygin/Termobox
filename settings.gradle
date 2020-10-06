@@ -1,2 +1,3 @@
 rootProject.name='Termobox'
 include ':app', ':toasty'
+include ':app', ':rxbus'
