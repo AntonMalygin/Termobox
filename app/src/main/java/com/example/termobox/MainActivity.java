@@ -70,6 +70,13 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private static final int SYNX_CLOCK_ERROR = 5; // Ошибка синхронизирования часов
     private static byte sh_seq=0;//вставляем счетчик пакетов
 
+    //(Message ID)-тип сообщения принимаемые с радиообмена
+    private static final int Mess_ID1_status = 6; // Статус термобокса
+    private static final int Mess_ID2_status = 7; // Передача данных при работе по расписанию
+    private static final int Mess_ID20_status = 8; // Запрос чтения бортового параметра struct param_request_read_s
+    private static final int Mess_ID16_status = 9; // Пришла команда struct cmd_exec_s
+    private static final int Mess_ID17_status = 11; // Подтверждение выполнения команды struct cmd_ack_s
+
     private boolean flag_clock_synx=false; // флаг для синхронизации часов с текущим временем телефона
 
 
@@ -379,7 +386,10 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
         @SuppressLint("SetTextI18n")
         @Override
-        public void handleMessage(Message msg) { }
+        public void handleMessage(Message msg) {
+            // Тут второй поток и обработчик поступающих сообщений
+
+        }
     };
 
     private class ConnectThread extends Thread {
