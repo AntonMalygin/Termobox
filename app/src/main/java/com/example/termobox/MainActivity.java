@@ -543,10 +543,12 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
                     // Read from the InputStream
                     numBytes = mmInStream.read(mmBuffer);
+                    RxBus.get().post(mmBuffer); // Отправка слушателям принятых данных
+
 
                     // Send the obtained bytes to the UI Activity
-                    outHandler.obtainMessage(MainActivity.MESSAGE_READ, numBytes,
-                            -1, mmBuffer).sendToTarget();
+               //     outHandler.obtainMessage(MainActivity.MESSAGE_READ, numBytes,
+                 //           -1, mmBuffer).sendToTarget();
 
                     try {//delay for full packet receiving
                         Thread.sleep(100);
@@ -584,11 +586,11 @@ public class MainActivity<Link> extends AppCompatActivity implements
                 try {
                     mmOutStream.write(buffer);
 
-                    RxBus.get().post(buffer);
+
 
                     // Share the sent message back to the UI Activity
-                    outHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
-                            buffer).sendToTarget();
+                  //  outHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
+                  //          buffer).sendToTarget();
 
                     mmOutStream.flush();
                 } catch (IOException e) {

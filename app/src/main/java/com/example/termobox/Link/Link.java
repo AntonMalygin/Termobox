@@ -15,7 +15,7 @@ public class Link implements Serializable{
     private static byte Sys_ID = (byte) 250;
     private static byte Comp_ID = 0;
 
-
+// Расчёт контрольной суммы по алгоритму
     public int Crc_calculate(byte[] buf, byte ofs, byte len)
     {
         short crc = (short) 0xffff;
