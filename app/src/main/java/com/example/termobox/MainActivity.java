@@ -1,5 +1,4 @@
 package com.example.termobox;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -55,6 +54,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
         CompoundButton.OnCheckedChangeListener,
         AdapterView.OnItemClickListener,
         View.OnClickListener
+
 {
 
     private static final String TAG = "MY_APP_DEBUG_TAG";
@@ -113,6 +113,9 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
 
 
+
+
+com.example.termobox.Link link = new com.example.termobox.Link();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -534,8 +537,10 @@ public class MainActivity<Link> extends AppCompatActivity implements
             short len;
             len=0;
 
-            byte ukz,i, crc_in, crc_temp;
+            byte ukz,i;
+            int crc_in, crc_temp, crc1, crc2 ,crc3,crc5,crc4;
             ukz=0;
+
 
 
             while (isConnected){
@@ -543,23 +548,46 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
                     // Read from the InputStream
                     numBytes = mmInStream.read(mmBuffer);
-                    RxBus.get().post(mmBuffer); // Отправка слушателям принятых данных
+
+                    for (i=0;i<numBytes;i++)
+                    {
+//
+                        mmB[ukz]= mmBuffer[i]; // Пишем данные во временный массив, и делаем Логическое И, что бы числа не были больше 0xFF (255)
 
 
-                    // Send the obtained bytes to the UI Activity
-               //     outHandler.obtainMessage(MainActivity.MESSAGE_READ, numBytes,
-                 //           -1, mmBuffer).sendToTarget();
+                        // Принимаем первый байт заголовка
+                        if (ukz == 0)
+                            if (mmB[0] ==(byte)0x31) {
 
-                    try {//delay for full packet receiving
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                                ukz++;
+                                continue;
+                            }
+                        if (ukz<1)
+                        {
+                            continue;  // Если указатель меньше 2 то переходим на начала цикла for
+                        }
+
+                                ukz++;                          // сдвигаем указатель на позицию
+                                if (ukz>=6)
+                                {
+                                    if ((mmB[1] + 8) == ukz)
+                                    {
+                                        crc_temp = ((mmB[mmB[1]+7]&0xFF)<<8)+(mmB[mmB[1]+6]&0xFF);
+
+                                         crc_in=link.Crc_calculate(mmB, 1, mmB[1]+5);
+
+
+
+                                        ukz = 0;
+                                        if (crc_temp == crc_in) {
+
+                                    //        RxBus.get().post(mmB); // Отправка слушателям принятых данных
+
+                                        }
+                                    }
+                                }
+
                     }
-
-
-
-
-
 
 
 

@@ -1,4 +1,5 @@
-package com.example.termobox.Link;
+package com.example.termobox;
+
 //---------------------------------Формат передачи параметров
 public class par_link extends Link {
 
