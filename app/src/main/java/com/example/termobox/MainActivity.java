@@ -1,4 +1,5 @@
 package com.example.termobox;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -33,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.hwangjr.rxbus.Bus;
+import com.hwangjr.rxbus.thread.ThreadEnforcer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,6 +91,45 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
     private boolean flag_clock_synx=false; // флаг для синхронизации часов с текущим временем телефона
 
+    //-----------------------------------type
+    private byte _CHAR =0x01;
+    private byte _UCHAR =0x02;
+    private byte _INT =  0x03;
+    private byte _UINT= 0x04;
+    private byte _LONG = 0x05;
+    private byte _ULONG = 0x06;
+    private byte _FLOAT = 0x07;
+    private byte _BOOL = 0x08;
+
+    private byte _R_ = 0x00;
+    private int _W_ = 0x80;
+
+    private byte _NF_ = 0x00; /*не выполнять функций*/
+    private byte _F1_ = 0x10; /*выполнять функцию каждый раз перед обновлением показаний*/
+    private byte _F2_ = 0x20; /*выполнить функцию при входе в программирование*/
+    private byte _F3_ = 0x30; /*выполнить функцию после программирования*/
+    private byte _F4_ = 0x40; /*выполнить функцию после изменения параметра*/
+
+
+    static float rerror; //ошибка регулирования
+    static float errorabs;//абсолютная ошибка регулирования
+    static float temp_set;//задание на регулятор перед рампой
+    static float rt_set; // задание на регулятор, после рампы
+    static float rt_act; // обратная связь на регулятор
+    //------------------------
+    static float temp_ext; //температура горячего спая
+
+    static float temp_int; //температура холодного спая
+
+    static float sifu_ref; //задание на сифу 0...100%
+    static float sifu_ref_p; //задание на сифу из параметра
+    static float pid_int;	//Интегральная рт
+    static char t_res,angl;
+    //------------------------
+    static short sh_minut; //осталось времени в текущем шаге
+    static short sh_minut_all; //прошло времени всего
+    static char num;	// номер текущего шага
+
 
     private FrameLayout frameMessage;
     private LinearLayout frameControls;
@@ -110,12 +151,13 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private ConnectedThread connectedThread;
     private ProgressDialog progressDialog;
 
+    com.example.termobox.Link link = new com.example.termobox.Link();
+
+//par_link T_PV = new par_link(0,99,0, _FLOAT, _R_,_NF_.);
 
 
 
 
-
-com.example.termobox.Link link = new com.example.termobox.Link();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +226,7 @@ com.example.termobox.Link link = new com.example.termobox.Link();
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        RxBus.get().unregister(this);
         unregisterReceiver(receiver); // Регистрация receiver в методе onDestroy
         if (connectThread != null) {
             connectThread.cancel();
@@ -194,7 +236,7 @@ com.example.termobox.Link link = new com.example.termobox.Link();
             connectedThread.cancel();
         }
 
-        RxBus.get().unregister(this);
+
 
     }
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -328,11 +370,14 @@ com.example.termobox.Link link = new com.example.termobox.Link();
 
         public static synchronized Bus get() {
             if (sBus == null) {
-                sBus = new Bus();
+                sBus = new Bus(ThreadEnforcer.ANY);
             }
             return sBus;
         }
     }
+
+
+
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -526,6 +571,7 @@ com.example.termobox.Link link = new com.example.termobox.Link();
 
 
 
+
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run(){
@@ -580,8 +626,8 @@ com.example.termobox.Link link = new com.example.termobox.Link();
 
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
-
-                                    //        RxBus.get().post(mmB); // Отправка слушателям принятых данных
+RxBus.get().post("Hello",mmB);
+//                                            RxBus.get().post(mmB); // Отправка слушателям принятых данных
 
                                         }
                                     }

@@ -34,7 +34,10 @@ dependencies {
     implementation 'com.github.GrenderG:Toasty:1.4.2'
     implementation 'com.google.code.gson:gson:2.8.6'
 
+    // RXJava
+  //  implementation "io.reactivex.rxjava3:rxjava:3.0.7"
+
 // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.2'
-    compile ('com.hwangjr.rxbus:rxbus:1.0.6') {exclude group: 'com.jakewharton.timber', module: 'timber'}
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+    implementation('com.hwangjr.rxbus:rxbus:2.0.1') {exclude group: 'com.jakewharton.timber', module: 'timber'}
 }

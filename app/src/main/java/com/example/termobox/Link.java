@@ -1,8 +1,6 @@
 package com.example.termobox;
 
 
-import java.util.ArrayList;
-
 public class Link{
 
 
@@ -22,7 +20,8 @@ public class Link{
     public byte sys= (byte) 250;    //(System ID)-ид системы
     public byte comp=0;   //(Component ID)-ид компонента
     public byte msg;    //(Message ID)-ид сообщения
-    public ArrayList data;	//данные и контрольная сумма
+    public byte[] data;	//данные и контрольная сумма
+
 
 
 
@@ -100,6 +99,8 @@ public class Link{
     }
 
 
+
+
     //--------------------
     /*public void Final_link(Object object, byte msg) throws IOException {
 
@@ -132,5 +133,6 @@ public class Link{
         }
 
 */
+
 
 }

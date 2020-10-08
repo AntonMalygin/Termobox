@@ -31,6 +31,9 @@ public class par_link extends Link {
         this.def = def;
     }
 
+
+
+
     public void setNp(byte np) {
         this.np = np;
     }
