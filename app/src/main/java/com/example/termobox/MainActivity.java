@@ -33,8 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.hwangjr.rxbus.Bus;
-import com.hwangjr.rxbus.thread.ThreadEnforcer;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +45,9 @@ import java.util.List;
 import java.util.Set;
 
 import es.dmoral.toasty.Toasty;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -56,8 +58,14 @@ public class MainActivity<Link> extends AppCompatActivity implements
         CompoundButton.OnCheckedChangeListener,
         AdapterView.OnItemClickListener,
         View.OnClickListener
-
 {
+
+        private Disposable disposable = null;
+        private SomethingService service = null;
+        private RxBus rxBus;
+
+
+
 
     private static final String TAG = "MY_APP_DEBUG_TAG";
     public static final int REQUEST_CODE_LOC = 1;
@@ -91,6 +99,8 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
     private boolean flag_clock_synx=false; // флаг для синхронизации часов с текущим временем телефона
 
+
+
     //-----------------------------------type
     private byte _CHAR =0x01;
     private byte _UCHAR =0x02;
@@ -98,13 +108,13 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private byte _UINT= 0x04;
     private byte _LONG = 0x05;
     private byte _ULONG = 0x06;
-    private byte _FLOAT = 0x07;
+    private short _FLOAT = 0x07;
     private byte _BOOL = 0x08;
 
-    private byte _R_ = 0x00;
+    private short _R_ = 0x00;
     private int _W_ = 0x80;
 
-    private byte _NF_ = 0x00; /*не выполнять функций*/
+    private short _NF_ = 0x00; /*не выполнять функций*/
     private byte _F1_ = 0x10; /*выполнять функцию каждый раз перед обновлением показаний*/
     private byte _F2_ = 0x20; /*выполнить функцию при входе в программирование*/
     private byte _F3_ = 0x30; /*выполнить функцию после программирования*/
@@ -117,7 +127,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
     static float rt_set; // задание на регулятор, после рампы
     static float rt_act; // обратная связь на регулятор
     //------------------------
-    static float temp_ext; //температура горячего спая
+    private float temp_ext; //температура горячего спая
 
     static float temp_int; //температура холодного спая
 
@@ -153,7 +163,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
     com.example.termobox.Link link = new com.example.termobox.Link();
 
-//par_link T_PV = new par_link(0,99,0, _FLOAT, _R_,_NF_.);
+    par_link Temp_PV = new par_link( 0,9,0, 0, 0,0,0,temp_ext,0f,0f,0f);
 
 
 
@@ -163,6 +173,14 @@ public class MainActivity<Link> extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        rxBus = ((MainApp) getApplication()).getRxBus();
+        service = new SomethingService(rxBus);
+        service.start();
+
+        listenEvents();
+
 
         frameMessage = findViewById(R.id.frame_message);
         frameControls = findViewById(R.id.frame_control);
@@ -181,7 +199,18 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
         btnDisconnect.setOnClickListener(this);
 
+
         bluetoothDevices = new ArrayList<>();
+
+        // перейти во вторую активность
+        ((Button) findViewById(R.id.btnStartSecond)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SecondActivity.start(MainActivity.this);
+            }
+        });
+
+
 
         //Инициализация диалогового окна при подключении к устройству
         progressDialog = new ProgressDialog(this);
@@ -217,7 +246,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
             setListAdapter(BT_BOUNDED);
         }
 
-        RxBus.get().register(this);
+
 
     }
 
@@ -226,8 +255,8 @@ public class MainActivity<Link> extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        RxBus.get().unregister(this);
-        unregisterReceiver(receiver); // Регистрация receiver в методе onDestroy
+        disposable.dispose();
+        service.stopService();
         if (connectThread != null) {
             connectThread.cancel();
         }
@@ -260,7 +289,23 @@ public class MainActivity<Link> extends AppCompatActivity implements
     }
 
 
+    /**
+     * Слушать данные
+     */
+    private void listenEvents() {
+        disposable = rxBus.listen()
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(final Object o) {
+                        if (o instanceof SimpleEvent) {
+                            String count = "Пришедшие данные: " + ((SimpleEvent) o).getCount();
+                            Toasty.info(MainActivity.this,count,Toasty.LENGTH_LONG).show();
 
+                        }
+                    }
+                });
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -364,18 +409,6 @@ public class MainActivity<Link> extends AppCompatActivity implements
             bluetoothAdapter.startDiscovery();
         }
     }
-
-    public static final class RxBus {
-        private static Bus sBus;
-
-        public static synchronized Bus get() {
-            if (sBus == null) {
-                sBus = new Bus(ThreadEnforcer.ANY);
-            }
-            return sBus;
-        }
-    }
-
 
 
 
@@ -485,6 +518,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
         @Override
         public void run() {
+
             try {
                 bluetoothSocket.connect();
                 success = true;
@@ -541,6 +575,15 @@ public class MainActivity<Link> extends AppCompatActivity implements
         private boolean isConnected = false;// Состояние соединения (Активно/Неактивно)
         private Handler handler;
 
+        // Переменные для отправки данных RxBus
+        private boolean isRun;
+        private int count = 0;
+
+
+
+
+
+
         ConnectedThread(BluetoothSocket socket, Handler handler){
             mmSocket=socket;
             this.handler = handler;
@@ -575,7 +618,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void run(){
-
+            super.run();
             //store for the stream
             byte[] mmBuffer = new byte[60];
             int numBytes; // Количество байт принятых из read()
@@ -626,8 +669,8 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
-RxBus.get().post("Hello",mmB);
-//                                            RxBus.get().post(mmB); // Отправка слушателям принятых данных
+
+
 
                                         }
                                     }
@@ -683,6 +726,7 @@ RxBus.get().post("Hello",mmB);
                 //bluetoothSocket.close();
                 mmInStream.close();
                 mmOutStream.close();
+
             }catch (IOException e){
                 e.printStackTrace();
             }

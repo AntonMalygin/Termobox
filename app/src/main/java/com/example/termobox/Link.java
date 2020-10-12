@@ -4,6 +4,7 @@ package com.example.termobox;
 public class Link{
 
 
+
     private byte target_system;      // получатель
     private byte target_component;   // получатель
     private byte cmd;            // команда
@@ -21,6 +22,11 @@ public class Link{
     public byte comp=0;   //(Component ID)-ид компонента
     public byte msg;    //(Message ID)-ид сообщения
     public byte[] data;	//данные и контрольная сумма
+
+
+
+
+
 
 
 

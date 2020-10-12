@@ -5,6 +5,7 @@ import com.hwangjr.rxbus.RxBus;
 
 
 public class MainApp extends Application {
+
     private RxBus bus;
 
     @Override

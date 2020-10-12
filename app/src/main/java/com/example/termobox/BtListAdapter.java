@@ -1,5 +1,6 @@
 package com.example.termobox;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -41,7 +42,7 @@ public class BtListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = inflater.inflate(RESOURCE_LAYOUT, parent, false);
+        @SuppressLint("ViewHolder") View view = inflater.inflate(RESOURCE_LAYOUT, parent, false);
 
         BluetoothDevice device = bluetoothDevices.get(position);
         if (device != null) {

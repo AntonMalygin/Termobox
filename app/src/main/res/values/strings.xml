@@ -11,4 +11,5 @@
     <string name="dont_connect">Не могу соединиться</string>
     <string name="stop_search">Остановить поиск</string>
     <string name="start_search">Начать поиск</string>
+    <string name="Programm_Termobox">Программирование Термобокса</string>
 </resources>

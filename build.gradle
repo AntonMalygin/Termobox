@@ -53,5 +53,5 @@ ext.deps = [
 
         rxandroid         : 'io.reactivex:rxandroid:1.2.1',
         rxjava            : 'io.reactivex:rxjava:1.3.4',
-        timber            : 'com.jakewharton.timber:timber:4.6.0',
+
 ]
