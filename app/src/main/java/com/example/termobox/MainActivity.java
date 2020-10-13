@@ -20,11 +20,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -148,8 +150,13 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private RelativeLayout frameLedControls;
     private Button btnDisconnect;
 
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch switchEnableBt;
     private Button btnEnableSearch;
+    private Button btn_power_on;
+    private Button btn_power_off;
+
+
     private ProgressBar pbProgress;
     private ListView listBtDevices;
 
@@ -161,6 +168,19 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private ConnectedThread connectedThread;
     private ProgressDialog progressDialog;
 
+    private TextView device_name;
+    private TextView temp_RF;
+    private TextView dig_Temp_RF;
+    private TextView temp_PV;
+    private TextView dig_Temp_PV;
+    private TextView stepN;
+    private TextView dig_StepN;
+    private TextView power_out;
+    private ProgressBar processBar_Power_out;
+    private ImageView led_pwr_on;
+    private ImageView led_pwr_off;
+
+
     com.example.termobox.Link link = new com.example.termobox.Link();
 
     par_link Temp_PV = new par_link( 0,9,0, 0, 0,0,0,temp_ext,0f,0f,0f);
@@ -169,18 +189,18 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
 
-        rxBus = ((MainApp) getApplication()).getRxBus();
-        service = new SomethingService(rxBus);
-        service.start();
+            rxBus = ((MainApp) getApplication()).getRxBus();
+            service = new SomethingService(rxBus);
+            service.start();
 
-        listenEvents();
-
+            //  listenEvents();
 
         frameMessage = findViewById(R.id.frame_message);
         frameControls = findViewById(R.id.frame_control);
@@ -193,9 +213,27 @@ public class MainActivity<Link> extends AppCompatActivity implements
         frameLedControls = findViewById(R.id.frameLedControls);
         btnDisconnect = findViewById(R.id.btn_disconnect);
 
+        device_name = findViewById(R.id.device_name);
+        temp_RF = findViewById(R.id.temp_RF);
+        dig_Temp_RF = findViewById(R.id.dig_Temp_RF);
+        temp_PV = findViewById(R.id.temp_PV);
+        dig_Temp_PV = findViewById(R.id.dig_Temp_PV);
+        stepN = findViewById(R.id.stepN);
+        dig_StepN = findViewById(R.id.dig_StepN);
+        power_out = findViewById(R.id.power_out);
+        processBar_Power_out = findViewById(R.id.processBar_Power_out);
+
+        led_pwr_off = findViewById(R.id.led_pwr_off);
+        led_pwr_on = findViewById(R.id.led_pwr_on);
+        btn_power_on = findViewById(R.id.btn_power_on);
+        btn_power_off = findViewById(R.id.btn_power_off);
+
         switchEnableBt.setOnCheckedChangeListener(this);
         btnEnableSearch.setOnClickListener(this);
         listBtDevices.setOnItemClickListener(this);
+
+        btn_power_on.setOnClickListener(this);
+        btn_power_off.setOnClickListener(this);
 
         btnDisconnect.setOnClickListener(this);
 
@@ -299,8 +337,14 @@ public class MainActivity<Link> extends AppCompatActivity implements
                     @Override
                     public void accept(final Object o) {
                         if (o instanceof SimpleEvent) {
-                            String count = "Пришедшие данные: " + ((SimpleEvent) o).getCount();
-                            Toasty.info(MainActivity.this,count,Toasty.LENGTH_LONG).show();
+                            final String count = "Пришедшие данные: " + ((SimpleEvent) o).getCount();
+                           runOnUiThread(new Runnable() {
+                               @Override
+                               public void run() {
+                                   Toasty.info(MainActivity.this,count,Toasty.LENGTH_LONG).show();
+                               }
+                           });
+
 
                         }
                     }

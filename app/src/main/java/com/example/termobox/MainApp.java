@@ -1,7 +1,7 @@
 package com.example.termobox;
 
 import android.app.Application;
-import com.hwangjr.rxbus.RxBus;
+
 
 
 public class MainApp extends Application {

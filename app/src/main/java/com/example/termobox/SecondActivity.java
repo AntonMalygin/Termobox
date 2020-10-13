@@ -24,7 +24,7 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_second);
 
-        listenEvent();
+   //     listenEvent();
     }
 
     private void listenEvent() {
@@ -34,9 +34,15 @@ public class SecondActivity extends AppCompatActivity {
                 .subscribe(new Consumer<Object>() {
                     @SuppressLint("CheckResult")
                     @Override
-                    public void accept(Object o) {
+                    public void accept(final Object o) {
                         if (o instanceof SimpleEvent) {
-                            Toasty.info(SecondActivity.this,String.valueOf(((SimpleEvent) o).getCount()),Toasty.LENGTH_LONG).show();
+                           runOnUiThread(new Runnable() {
+                               @Override
+                               public void run() {
+                                   Toasty.info(SecondActivity.this,"Данные :" + ((SimpleEvent) o).getCount(),Toasty.LENGTH_LONG).show();
+                               }
+                           });
+
 
                         }
                     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -82,12 +83,156 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/btn_disconnect"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="379dp"
-            android:layout_marginEnd="50dp"
+
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="400dp"
             android:text="@string/Programm_Termobox" />
+
+        <TextView
+            android:id="@+id/device_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_disconnect"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="Device Name"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/temp_RF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/device_name"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="14dp"
+            android:text="Заданная температура"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/dig_Temp_RF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/device_name"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="250dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="100dp"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/temp_PV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_RF"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="14dp"
+            android:text="Фактическая температура"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/dig_Temp_PV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_RF"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="250dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="100dp"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/stepN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_PV"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="14dp"
+            android:text="Номер шага"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/dig_StepN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_PV"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="250dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="100dp"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/power_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stepN"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="14dp"
+            android:text="Выход регулятора"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <ProgressBar
+            android:id="@+id/processBar_Power_out"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/power_out"
+            android:layout_marginTop="30dp"
+            android:progressTint="#050505" />
+
+
+        <ImageView
+            android:id="@+id/led_pwr_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/processBar_Power_out"
+            android:layout_marginTop="4dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="75dp"
+            app:srcCompat="@drawable/ic_baseline_lens_24_heat_on" />
+
+        <ImageView
+            android:id="@+id/led_pwr_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/processBar_Power_out"
+            android:layout_alignParentEnd="true"
+
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="75dp"
+            app:srcCompat="@drawable/ic_baseline_lens_24_heat_off" />
+
+        <Button
+            android:id="@+id/btn_power_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/led_pwr_on"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+
+            android:text="Включить печку" />
+
+        <Button
+            android:id="@+id/btn_power_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/led_pwr_off"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Выключить печку"
+            android:visibility="visible" />
+
 
     </RelativeLayout>
 
