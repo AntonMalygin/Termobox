@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import es.dmoral.toasty.Toasty;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -16,7 +15,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SecondActivity extends AppCompatActivity {
 
     private Disposable disposable;
-
+private Object mmC;
 
 
     @Override
@@ -24,7 +23,7 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_second);
 
-   //     listenEvent();
+        listenEvent();
     }
 
     private void listenEvent() {
@@ -36,13 +35,16 @@ public class SecondActivity extends AppCompatActivity {
                     @Override
                     public void accept(final Object o) {
                         if (o instanceof SimpleEvent) {
-                           runOnUiThread(new Runnable() {
-                               @Override
-                               public void run() {
-                                   Toasty.info(SecondActivity.this,"Данные :" + ((SimpleEvent) o).getCount(),Toasty.LENGTH_LONG).show();
-                               }
-                           });
+                           //runOnUiThread(new Runnable() {
+                          //     @Override
+                         //      public void run() {
 
+                         //          Toasty.info(SecondActivity.this,"Данные :" + ((SimpleEvent) o).getCount(),Toasty.LENGTH_LONG).show();
+
+                       // }
+
+                          // });
+                        mmC=((SimpleEvent) o) .getCount();
 
                         }
                     }
@@ -56,8 +58,12 @@ public class SecondActivity extends AppCompatActivity {
     }
 
 
+
     public static void start(Context context) {
         Intent starter = new Intent(context, SecondActivity.class);
         context.startActivity(starter);
     }
+
+
+
 }

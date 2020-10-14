@@ -200,7 +200,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
             service = new SomethingService(rxBus);
             service.start();
 
-            //  listenEvents();
+              listenEvents();
 
         frameMessage = findViewById(R.id.frame_message);
         frameControls = findViewById(R.id.frame_control);
@@ -714,7 +714,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
 
-
+                                        rxBus.send(new SimpleEvent<>(mmB));
 
                                         }
                                     }

@@ -1,8 +1,6 @@
 package com.example.termobox;
 
 
-import android.util.Log;
-
 /***
  * Простейший класс сервис, например блютуз, который выполняет работу в стороннем потоке
  */
@@ -27,6 +25,8 @@ public class SomethingService extends Thread {
         rxBus = null;
     }
 
+
+
     /***
      * Тут выполняется какая то работа
      */
@@ -35,8 +35,9 @@ public class SomethingService extends Thread {
         super.run();
         while (isRun) {
             count++;
-            rxBus.send(new SimpleEvent(count));
-            Log.d(SomethingService.class.getSimpleName(), "run: Count = " + count);
+          //  rxBus.send(new SimpleEvent(count));
+
+          //   Log.d(SomethingService.class.getSimpleName(), "run: Count = " + count);
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {

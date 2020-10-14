@@ -4,18 +4,17 @@ package com.example.termobox;
  * Простой объект для передачи.
  * Может быть любым
  */
-public class SimpleEvent {
-    private int count;
+public class SimpleEvent<object>{
+    private object o;
+    //private int count;
 
-    public SimpleEvent(int count) {
-        this.count = count;
+    public SimpleEvent(object object) {
+        this.o = object;
     }
 
-    public int getCount() {
-        return count;
+    public object getCount() {
+        return o;
     }
 
-    public void setCount(int count) {
-        this.count = count;
-    }
+    //public void setCount(int count) {this.count = count;}
 }

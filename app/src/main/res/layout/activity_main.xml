@@ -19,7 +19,7 @@
 
     <FrameLayout
         android:id="@+id/frame_message"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -68,7 +68,7 @@
         android:id="@+id/frameLedControls"
         android:layout_width="match_parent"
         android:layout_height="537dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <Button
             android:id="@+id/btn_disconnect"
@@ -82,10 +82,10 @@
             android:id="@+id/btnStartSecond"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btn_disconnect"
-
+            android:layout_below="@id/btn_power_off"
+            android:layout_marginTop="30dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="400dp"
+
             android:text="@string/Programm_Termobox" />
 
         <TextView
@@ -217,7 +217,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/led_pwr_on"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
 
             android:text="Включить печку" />
@@ -229,7 +229,7 @@
             android:layout_below="@+id/led_pwr_off"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="5dp"
             android:text="Выключить печку"
             android:visibility="visible" />
 
