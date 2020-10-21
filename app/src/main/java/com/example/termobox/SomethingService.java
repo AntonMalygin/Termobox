@@ -11,10 +11,14 @@ public class SomethingService extends Thread {
     private int count = 0;
     private RxBus rxBus;
 
+
     public SomethingService(RxBus rxBus) {
         this.rxBus = rxBus;
         isRun = true;
     }
+
+
+
 
     /**
      * Остановить сервис
@@ -23,21 +27,27 @@ public class SomethingService extends Thread {
     public void stopService() {
         isRun = false;
         rxBus = null;
+
     }
 
 
 
     /***
      * Тут выполняется какая то работа
+     *
      */
+
+
+
+
+
     @Override
     public void run() {
         super.run();
         while (isRun) {
             count++;
           //  rxBus.send(new SimpleEvent(count));
-
-          //   Log.d(SomethingService.class.getSimpleName(), "run: Count = " + count);
+        //   Log.d(SomethingService.class.getSimpleName(), "run: Count = " + count);
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {

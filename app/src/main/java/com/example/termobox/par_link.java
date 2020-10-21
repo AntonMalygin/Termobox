@@ -1,7 +1,7 @@
 package com.example.termobox;
 
 //---------------------------------Формат передачи параметров
-public class par_link extends Link {
+class par_link extends Link {
 
     //  public link_pack lpk;
     private int np;         // порядковый номер параметра (индекс)
@@ -19,19 +19,23 @@ public class par_link extends Link {
 
 
 
-    public par_link(int np, int npmax, int nump, int nm_par, int acc_lvl, int typ, int zn, float temp_ext, float min, float max, float def) {
+    public par_link(int np, int npmax, int nump, int nm_par, int acc_lvl, int typ, int zn, float val, float min, float max, float def) {
 
-        this.np = np;
-        this.npmax = npmax;
-        this.nump = nump;
-        this.nm_par =  nm_par;
-        this.acc_lvl = acc_lvl;
-        this.typ = typ;
-        this.zn = zn;
-        this.val = val;
-        this.min = min;
-        this.max = max;
-        this.def = def;
+        this.np = np;           // порядковый номер параметра (индекс)
+        this.npmax = npmax;     // всего параметров
+        this.nump = nump;       // номер параметра
+        this.nm_par =  nm_par;  // буква параметра
+        this.acc_lvl = acc_lvl; // уровень доступа к параметрам
+        this.typ = typ;         // тип данных, старший бит R/W 1-можно редактировать. // 0- нет 1-char 2-uchar 3-int 4-uint 5-long 6-ulong 7-float 8-bool
+        this.zn = zn;           // число знаков после запятой
+        this.val = val;         // текущее значение параметра
+        this.min = min;       // минимальное значение параметра
+        this.max = max;       // максимальное значение параметра
+        this.def = def;       // значение по умолчанию
+    }
+
+    public par_link() {
+
     }
 
 
@@ -39,7 +43,7 @@ public class par_link extends Link {
         this.np = np;
     }
 
-    public void setNpmax(int npmax) {        this.npmax = npmax;
+    public void setNpmax(int npmax) { this.npmax = npmax;
     }
 
     public void setNump(int nump) {

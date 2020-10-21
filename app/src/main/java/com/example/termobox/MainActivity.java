@@ -128,12 +128,14 @@ public class MainActivity<Link> extends AppCompatActivity implements
     static float temp_set;//задание на регулятор перед рампой
     static float rt_set; // задание на регулятор, после рампы
     static float rt_act; // обратная связь на регулятор
+    static float rset_temp; /*задание (град)*/
+
     //------------------------
     private float temp_ext; //температура горячего спая
 
     static float temp_int; //температура холодного спая
 
-    static float sifu_ref; //задание на сифу 0...100%
+    private float sifu_ref; //задание на сифу 0...100%
     static float sifu_ref_p; //задание на сифу из параметра
     static float pid_int;	//Интегральная рт
     static char t_res,angl;
@@ -142,6 +144,48 @@ public class MainActivity<Link> extends AppCompatActivity implements
     static short sh_minut_all; //прошло времени всего
     static char num;	// номер текущего шага
 
+static class cicl_list_s {
+
+    float set_t;
+    short set_time;
+
+
+}
+
+    static class par_s {
+
+        char id;			// Идентификатор
+        char rej;		// сифу подключено к 0-регулятору температуры, 1-из параметра, 2- аналоговый вход
+        char rej_in;		// Задание на РТ  0-из параметра, 1-таблица, 2- аналоговый вход
+        float set_temp;		// Заданная температура
+        float amin;			//  min выходная мощность
+        float amax;			//  max выходная мощность
+        float p_rt;			// пропорциональная регулятора температуры
+        float i_rt;			// интегральная регулятора температуры
+        float d_rt;			// диф регулятора температуры
+        float offset_dt;	// смещение датчика температуры (установка нуля)
+        float gate_dt;		// коэффициент коррекции датчика температуры
+        char at_cicl;	// циклов автонастройка
+        char at_lwl;		// уровень автонастройки
+        float imax;			// Ограничение интегральной части регулятора
+        float Tmax;			// Максимальная допустимая температура
+        float Tmin;			// Минимальная допустимая температура
+        float Tfilter;		// Постоянная фильтра сек
+        float spup;			// Заданная скорость увеличения температуры (град/мин)
+        float spdo;			// Заданная скорость снижения температуры (град/мин)
+//	float g_min;		// Минимальный выход тест генератора
+//	float g_max;		// Максимальный выход тест генератора
+//	uint16_t g_t_min;	// время минимума тест генератора
+//	uint16_t g_t_max;	// время максимума тест генератора
+
+        cicl_list_s[] c_list = new cicl_list_s[5];
+        int crc;
+
+    }
+
+par_s p_r = new par_s(); // Параметры в ОЗУ
+
+    private Object mmC;
 
     private FrameLayout frameMessage;
     private LinearLayout frameControls;
@@ -181,16 +225,31 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private ImageView led_pwr_off;
 
 
+
     com.example.termobox.Link link = new com.example.termobox.Link();
 
-    par_link Temp_PV = new par_link( 0,9,0, 0, 0,0,0,temp_ext,0f,0f,0f);
 
+/**************************************************************************Параметры термобокса*******************************/
 
+    par_link Temp_PV = new par_link( 0,9,0, 0, 0,0,0,temp_ext,0f,0f,0f);    /*факт. температура (град)*/
+    par_link Temp_RF = new par_link(1,9,0, 0, 0,0,0,rt_set,0f,0f,0f);       /*зад. температура на регулятор(град)*/
+    par_link Temp_RF_temp = new par_link(2,9,0, 0, 0,0,0,p_r.set_temp,0f,0f,0f);       /*задание (град)*/
+    par_link Source_In = new par_link(3,9,0, 0, 0,0,0,p_r.rej_in,0f,0f,0f);       /*источник задания на РТ */
+    par_link Source_In_sifu = new par_link(4,9,0, 0, 0,0,0,p_r.rej,0f,0f,0f);  /*источник задания на сифу*/
+    par_link Sifu_RF_from_parametr = new par_link(5,9,0, 0, 0,0,0,sifu_ref_p,0f,0f,0f);  /*Задание на сифу из параметра*/
+    par_link Reg_error = new par_link(6,9,0, 0, 0,0,0,rerror,0f,0f,0f);  /*Ошибка регулирования*/
+    par_link ABS_error = new par_link(7,9,0, 0, 0,0,0,errorabs,0f,0f,0f);  /*Абсолютная ошибка регулирования*/
+    par_link Sifu_RF = new par_link(8,9,0, 0, 0,0,0,sifu_ref,0f,0f,0f);  /*задание на сифу*/
+    par_link PID_int = new par_link(9,9,0, 0, 0,0,0,pid_int,0f,0f,0f);    /*интегральная пид регулятора*/
+    par_link Cycle_autotune = new par_link(10,9,0, 0, 0,0,0,p_r.at_cicl,0f,0f,0f);    /*циклов автонастройки */
+    par_link Level_autotune = new par_link(11,9,0, 0, 0,0,0,p_r.at_lwl,0f,0f,0f);    /*уровень автонастройки */
+    par_link Temp_min_level = new par_link(12,9,0, 0, 0,0,0,p_r.Tmin,0f,0f,0f);    /* Минимально допустимая температура */
+    par_link Temp_max_level = new par_link(13,0x18,20, 0, 0,0,0,p_r.Tmax,0f,0f,0f);    /* Максимально допустимая температура */
+//par_link PT_Kp = new par_link() /* проп. рег. температуры */
 
+    /**************************************************************************Параметры термобокса*******************************/
 
-
-
-        @Override
+    @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
@@ -289,7 +348,6 @@ public class MainActivity<Link> extends AppCompatActivity implements
     }
 
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -330,25 +388,22 @@ public class MainActivity<Link> extends AppCompatActivity implements
     /**
      * Слушать данные
      */
-    private void listenEvents() {
+    private Object listenEvents() {
+
         disposable = rxBus.listen()
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Object>() {
                     @Override
                     public void accept(final Object o) {
                         if (o instanceof SimpleEvent) {
-                            final String count = "Пришедшие данные: " + ((SimpleEvent) o).getCount();
-                           runOnUiThread(new Runnable() {
-                               @Override
-                               public void run() {
-                                   Toasty.info(MainActivity.this,count,Toasty.LENGTH_LONG).show();
-                               }
-                           });
+                            mmC = ((SimpleEvent) o).getCount();
 
 
                         }
                     }
                 });
+
+        return mmC;
     }
 
     @Override
@@ -535,10 +590,28 @@ public class MainActivity<Link> extends AppCompatActivity implements
     @SuppressLint("HandlerLeak")
     private final Handler outHandler = new Handler() {
 
-        @SuppressLint("SetTextI18n")
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @SuppressLint({"SetTextI18n", "DefaultLocale"})
         @Override
         public void handleMessage(Message msg) {
             // Тут второй поток и обработчик поступающих сообщений
+            if (msg.what ==MESSAGE_DEVICE_NAME){
+                device_name.setText("Tremolos");
+                dig_Temp_RF.setText(String.format("%.1f",temp_set));
+                Toasty.info(MainActivity.this,"Имя прибора",Toasty.LENGTH_SHORT).show();
+
+
+            }
+
+
+            if (msg.what ==Mess_ID1_status){
+                dig_Temp_RF.setText(String.format("%.1f",temp_set));
+                dig_Temp_PV.setText(String.format("%.1f",temp_ext));
+                processBar_Power_out.setProgress((int) sifu_ref);
+
+            }
+            if (msg.what ==SEND_ERROR){}
+
 
         }
     };
@@ -714,7 +787,17 @@ public class MainActivity<Link> extends AppCompatActivity implements
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
 
-                                        rxBus.send(new SimpleEvent<>(mmB));
+                                    switch (mmB[5])
+                                            {
+                                                case 0: {handler.sendEmptyMessage(MESSAGE_DEVICE_NAME);break;}
+                                                case 1: {handler.sendEmptyMessage(Mess_ID1_status);break;} // пришёл статус сообщение №1
+                                                case 2: {handler.sendEmptyMessage(Mess_ID2_status);break;} // пришёл статус сообщение №2 - Передача данных при работе по расписанию
+                                                case 16: {handler.sendEmptyMessage(Mess_ID16_status);break;} // пришёл статус сообщение №16 - Пришла команда
+                                                case 17: {handler.sendEmptyMessage(Mess_ID17_status);break;} // пришёл статус сообщение №17 - Подтверждение выполнения команды
+                                                case 20: {handler.sendEmptyMessage(Mess_ID20_status);break;} // пришёл статус сообщение №20 - Запрос чтения бортового параметра
+
+                                            }
+                                                rxBus.send(new SimpleEvent<>(mmB));
 
                                         }
                                     }

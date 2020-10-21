@@ -18,12 +18,17 @@ public class SecondActivity extends AppCompatActivity {
 private Object mmC;
 
 
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_second);
 
         listenEvent();
+
+
+
+
     }
 
     private void listenEvent() {
@@ -55,6 +60,7 @@ private Object mmC;
     protected void onDestroy() {
         super.onDestroy();
         disposable.dispose();
+
     }
 
 
@@ -62,6 +68,7 @@ private Object mmC;
     public static void start(Context context) {
         Intent starter = new Intent(context, SecondActivity.class);
         context.startActivity(starter);
+
     }
 
 

@@ -18,7 +18,7 @@ public class Link{
     public byte stx=0x31;    //начало пакета
     public byte len;    //длина поля данных без контрольной суммы
     public byte seq;    //счетчик пакетов
-    public byte sys= (byte) 250;    //(System ID)-ид системы
+    public byte sys= (byte) 24;    //(System ID)-ид системы
     public byte comp=0;   //(Component ID)-ид компонента
     public byte msg;    //(Message ID)-ид сообщения
     public byte[] data;	//данные и контрольная сумма
