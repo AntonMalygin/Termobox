@@ -99,28 +99,7 @@ public class MainActivity<Link> extends AppCompatActivity implements
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
 
-    private boolean flag_clock_synx=false; // флаг для синхронизации часов с текущим временем телефона
 
-
-
-    //-----------------------------------type
-    private byte _CHAR =0x01;
-    private byte _UCHAR =0x02;
-    private byte _INT =  0x03;
-    private byte _UINT= 0x04;
-    private byte _LONG = 0x05;
-    private byte _ULONG = 0x06;
-    private short _FLOAT = 0x07;
-    private byte _BOOL = 0x08;
-
-    private short _R_ = 0x00;
-    private int _W_ = 0x80;
-
-    private short _NF_ = 0x00; /*не выполнять функций*/
-    private byte _F1_ = 0x10; /*выполнять функцию каждый раз перед обновлением показаний*/
-    private byte _F2_ = 0x20; /*выполнить функцию при входе в программирование*/
-    private byte _F3_ = 0x30; /*выполнить функцию после программирования*/
-    private byte _F4_ = 0x40; /*выполнить функцию после изменения параметра*/
 
 
     static float rerror; //ошибка регулирования
@@ -131,20 +110,43 @@ public class MainActivity<Link> extends AppCompatActivity implements
     static float rset_temp; /*задание (град)*/
 
     //------------------------
-    private float temp_ext; //температура горячего спая
+    float temp_ext; //температура горячего спая
 
-    static float temp_int; //температура холодного спая
+    float temp_int; //температура холодного спая
 
-    private float sifu_ref; //задание на сифу 0...100%
-    static float sifu_ref_p; //задание на сифу из параметра
-    static float pid_int;	//Интегральная рт
-    static char t_res,angl;
+    float sifu_ref; //задание на сифу 0...100%
+    float sifu_ref_p; //задание на сифу из параметра
+    float pid_int;	//Интегральная рт
+    char t_res,angl;
     //------------------------
+
     static short sh_minut; //осталось времени в текущем шаге
     static short sh_minut_all; //прошло времени всего
     static char num;	// номер текущего шага
 
-static class cicl_list_s {
+    float cmd_pr; /*10-Сохранить параметры, 15-По умолчанию, 20- прочитать из eeprom*/
+    float s_freq; // частота сети в гц
+    float s_raw; // полупериод в попугаях
+    float lvl_acs;  //Уровень доступа
+    float r22;  /*Заданная температура для текущего шага*/
+
+    float adc6;
+    float t_ntc;
+    float mcu;
+    float g_dt;
+
+    float uref;/*Напряжение питания платы*/
+    float u_7;/*Напряжение питания платы термопары*/
+    float load_cpu;//загрузка цпу
+
+    long[] t_task = new long[10];//Буфер времени выполнения задач
+
+
+
+
+
+
+    static class cicl_list_s {
 
     float set_t;
     short set_time;
@@ -178,8 +180,11 @@ static class cicl_list_s {
 //	uint16_t g_t_min;	// время минимума тест генератора
 //	uint16_t g_t_max;	// время максимума тест генератора
 
+
+
         cicl_list_s[] c_list = new cicl_list_s[5];
         int crc;
+
 
     }
 
@@ -227,27 +232,101 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
 
 
     com.example.termobox.Link link = new com.example.termobox.Link();
-
+Atune at = new Atune();
 
 /**************************************************************************Параметры термобокса*******************************/
 
-    par_link Temp_PV = new par_link( 0,9,0, 0, 0,0,0,temp_ext,0f,0f,0f);    /*факт. температура (град)*/
-    par_link Temp_RF = new par_link(1,9,0, 0, 0,0,0,rt_set,0f,0f,0f);       /*зад. температура на регулятор(град)*/
-    par_link Temp_RF_temp = new par_link(2,9,0, 0, 0,0,0,p_r.set_temp,0f,0f,0f);       /*задание (град)*/
-    par_link Source_In = new par_link(3,9,0, 0, 0,0,0,p_r.rej_in,0f,0f,0f);       /*источник задания на РТ */
-    par_link Source_In_sifu = new par_link(4,9,0, 0, 0,0,0,p_r.rej,0f,0f,0f);  /*источник задания на сифу*/
-    par_link Sifu_RF_from_parametr = new par_link(5,9,0, 0, 0,0,0,sifu_ref_p,0f,0f,0f);  /*Задание на сифу из параметра*/
-    par_link Reg_error = new par_link(6,9,0, 0, 0,0,0,rerror,0f,0f,0f);  /*Ошибка регулирования*/
-    par_link ABS_error = new par_link(7,9,0, 0, 0,0,0,errorabs,0f,0f,0f);  /*Абсолютная ошибка регулирования*/
-    par_link Sifu_RF = new par_link(8,9,0, 0, 0,0,0,sifu_ref,0f,0f,0f);  /*задание на сифу*/
-    par_link PID_int = new par_link(9,9,0, 0, 0,0,0,pid_int,0f,0f,0f);    /*интегральная пид регулятора*/
-    par_link Cycle_autotune = new par_link(10,9,0, 0, 0,0,0,p_r.at_cicl,0f,0f,0f);    /*циклов автонастройки */
-    par_link Level_autotune = new par_link(11,9,0, 0, 0,0,0,p_r.at_lwl,0f,0f,0f);    /*уровень автонастройки */
-    par_link Temp_min_level = new par_link(12,9,0, 0, 0,0,0,p_r.Tmin,0f,0f,0f);    /* Минимально допустимая температура */
-    par_link Temp_max_level = new par_link(13,0x18,20, 0, 0,0,0,p_r.Tmax,0f,0f,0f);    /* Максимально допустимая температура */
-//par_link PT_Kp = new par_link() /* проп. рег. температуры */
+
+    par_link Temp_PV = new par_link( 0,99,0, 0, 0,0,0,temp_ext,0f,0f,0f);    /*факт. температура (град)*/
+    par_link Temp_RF = new par_link(1,99,0, 0, 0,0,0,rt_set,0f,0f,0f);       /*зад. температура на регулятор(град)*/
+    par_link Temp_RF_temp = new par_link(2,99,0, 0, 0,0,0,p_r.set_temp,0f,0f,0f);       /*задание (град)*/
+    par_link Source_In = new par_link(3,99,0, 0, 0,0,0,p_r.rej_in,0f,0f,0f);       /*источник задания на РТ */
+    par_link Source_In_sifu = new par_link(4,99,0, 0, 0,0,0,p_r.rej,0f,0f,0f);  /*источник задания на сифу*/
+    par_link Sifu_RF_from_parametr = new par_link(5,99,0, 0, 0,0,0,sifu_ref_p,0f,0f,0f);  /*Задание на сифу из параметра*/
+    par_link Reg_error = new par_link(6,99,0, 0, 0,0,0,rerror,0f,0f,0f);  /*Ошибка регулирования*/
+    par_link ABS_error = new par_link(7,99,0, 0, 0,0,0,errorabs,0f,0f,0f);  /*Абсолютная ошибка регулирования*/
+    par_link Sifu_RF = new par_link(8,99,0, 0, 0,0,0,sifu_ref,0f,0f,0f);  /*задание на сифу*/
+    par_link PID_int = new par_link(9,99,0, 0, 0,0,0,pid_int,0f,0f,0f);    /*интегральная пид регулятора*/
+    par_link Cycle_autotune = new par_link(10,99,0, 0, 0,0,0,p_r.at_cicl,0f,0f,0f);    /*циклов автонастройки */
+    par_link Level_autotune = new par_link(11,99,0, 0, 0,0,0,p_r.at_lwl,0f,0f,0f);    /*уровень автонастройки */
+    par_link Temp_min = new par_link(12,99,0, 0, 0,0,0,p_r.Tmin,0f,0f,0f);    /* Минимально допустимая температура */
+    par_link Temp_max = new par_link(13,99,0, 0, 0,0,0,p_r.Tmax,0f,0f,0f);    /* Максимально допустимая температура */
+    par_link PT_Kp = new par_link(14,99,0,0,0,0,0,p_r.p_rt,0,0,0); /* проп. рег. температуры */
+    par_link PT_Tn = new par_link(15,99,0,0,0,0,0,p_r.i_rt,0,0,0); /* инт. рег. температуры */
+    par_link PT_D = new par_link(16,99,0,0,0,0,0,p_r.d_rt,0,0,0); /* диф. рег. температуры */
+
+    par_link T_Filter_temp = new par_link(17,99,0,0,0,0,0,p_r.Tfilter,0,0,0); /* Постоянная фильтра температуры */
+
+    par_link Temp_spup = new par_link(18,99,0,0,0,0,0,p_r.spup,0,0,0); /* Заданная скорость увеличения температуры град/мин (0-откл)*/
+    par_link Temp_spdo = new par_link(19,99,0,0,0,0,0,p_r.spdo,0,0,0); /* Заданная скорость снижения температуры град/мин (0-откл) */
+
+
+
+    par_link T_step = new par_link(20,99,0,0,0,0,0,sh_minut,0,0,0); /*Оставшееся время поддержания температуты в текущем шаге*/
+    par_link Nr_step = new par_link(21,99,0,0,0,0,0,num,0,0,0); /*номер текущего шага*/
+
+    par_link T_RF_step = new par_link(22,99,0,0,0,0,0,r22,0,0,0); /*Заданная температура для текущего шага*/
+
+
+    par_link Level_access = new par_link(51,99,0,0,0,0,0,lvl_acs,0,0,0); /* Уровень доступа*/
+
+    par_link Cmd_pr = new par_link(52,99,0,0,0,0,0,cmd_pr,0,0,0); /*10-Сохранить параметры, 15-По умолчанию, 20- прочитать из eeprom*/
+    par_link PT_Tn_max = new par_link(59,99,0,0,0,0,0,p_r.imax,0,0,0); /* ограничение интегральной части регулятора */
+    par_link Pout_min = new par_link(60,99,0,0,0,0,0,p_r.amin,0,0,0); /* минимальная выходная мощность */
+    par_link Pout_max = new par_link(61,99,0,0,0,0,0,p_r.amax,0,0,0); /* максимальная выходная мощность */
+    par_link T_sensor_offset = new par_link(63,99,0,0,0,0,0,p_r.offset_dt,0,0,0); /* смещение датчика температуры (установка нуля) */
+    par_link Correct_T_sensor = new par_link(64,99,0,0,0,0,0,p_r.gate_dt,0,0,0); /* коэффициент коррекции датчика температуры */
+
+
+
+    par_link S_freq = new par_link(68,99,0,0,0,0,0,s_freq,0,0,0); /*Частота сети гц*/
+
+    par_link S_raw = new par_link(69,99,0,0,0,0,0,s_raw,0,0,0); /*полупериод в попугаях*/
+
+    par_link At_ku = new par_link(70,99,0,0,0,0,0,at.Ku,0,0,0); /**/
+    par_link At_tu = new par_link(71,99,0,0,0,0,0,at.Tu,0,0,0); /**/
+
+
+    par_link ADC6 = new par_link(78,99,0,0,0,0,0,adc6,0,0,0); /*Значение ацп6*/
+
+    par_link T_ntc = new par_link(79,99,0,0,0,0,0,t_ntc,0,0,0); /*Значение температуры с NTC резистора*/
+
+
+    par_link MCUSR = new par_link(80,99,0,0,0,0,0,mcu,0,0,0); /*Статус включения MCUSR*/
+
+    par_link Loop_ms = new par_link(81,99,0,0,0,0,0,g_dt,0,0,0); /*Период регулятора (мСек)*/
+
+    par_link Temp_PV_ext = new par_link(83,99,0,0,0,0,0,temp_ext,0,0,0); /*факт.внешняя температура нефильтрованная(град)*/
+    par_link Temp_PV_int = new par_link(84,99,0,0,0,0,0,temp_int,0,0,0); /*факт.внутр. температура нефильтрованная(град)*/
+
+    par_link T_res = new par_link(85,99,0,0,0,0,0,t_res,0,0,0); /*результат преобразования (код ошибки)*/
+
+
+
+    par_link Uref = new par_link(86,99,0,0,0,0,0,uref,0,0,0); /*Напряжение питания платы*/
+
+    par_link U_7 = new par_link(87,99,0,0,0,0,0,u_7,0,0,0);/*Напряжение питания платы термопары*/
+    par_link Angle_ctrl = new par_link(88,99,0,0,0,0,0,angl,0,0,0); /*угол управления*/
+
+    par_link Load_cpu = new par_link(89,99,0,0,0,0,0,load_cpu,0,0,0); //загрузка цпу
+
+    /*******************************************Режим отладки для Андрея******************************************************/
+    par_link Debug1 = new par_link(90,99,0,0,0,0,0,t_task[0] ,0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug2 = new par_link(91,99,0,0,0,0,0,t_task[1],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug3 = new par_link(92,99,0,0,0,0,0,t_task[2],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug4 = new par_link(93,99,0,0,0,0,0,t_task[3],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug5 = new par_link(94,99,0,0,0,0,0,t_task[4],0,0,0); /*Параметры для отладки недокументированны*/
+
+    par_link Debug6 = new par_link(95,99,0,0,0,0,0,t_task[5],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug7 = new par_link(96,99,0,0,0,0,0,t_task[6],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug8 = new par_link(97,99,0,0,0,0,0,t_task[7],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug9 = new par_link(98,99,0,0,0,0,0,t_task[8],0,0,0); /*Параметры для отладки недокументированны*/
+    par_link Debug10 = new par_link(99,99,0,0,0,0,0,t_task[9],0,0,0); /*Параметры для отладки недокументированны*/
+
+
 
     /**************************************************************************Параметры термобокса*******************************/
+
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -346,6 +425,7 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
 
 
     }
+
 
 
     @Override

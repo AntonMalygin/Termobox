@@ -34,9 +34,7 @@ class par_link extends Link {
         this.def = def;       // значение по умолчанию
     }
 
-    public par_link() {
 
-    }
 
 
     public void setNp(int np) {
