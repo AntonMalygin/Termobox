@@ -9,7 +9,7 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switch_enable_bt"
         android:text="@string/bluetooth_on_off"
         android:textSize="18sp"
@@ -118,7 +118,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="250dp"
             android:layout_marginTop="14dp"
-            android:layout_marginEnd="100dp"
+            android:layout_marginEnd="80dp"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
@@ -141,7 +141,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="250dp"
             android:layout_marginTop="14dp"
-            android:layout_marginEnd="100dp"
+            android:layout_marginEnd="80dp"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
@@ -164,7 +164,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="250dp"
             android:layout_marginTop="14dp"
-            android:layout_marginEnd="100dp"
+            android:layout_marginEnd="80dp"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
@@ -179,15 +179,22 @@
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
+
         <ProgressBar
             android:id="@+id/processBar_Power_out"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="wrap_content"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+
+
             android:layout_height="wrap_content"
             android:layout_below="@id/power_out"
-            android:layout_marginTop="30dp"
-            android:progressTint="#050505" />
-
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="20dp"
+            android:max="100"
+            android:progressTint="#050505"
+            android:layout_width="wrap_content" />
 
         <ImageView
             android:id="@+id/led_pwr_on"
@@ -197,7 +204,8 @@
             android:layout_marginTop="4dp"
             android:layout_alignParentStart="true"
             android:layout_marginStart="75dp"
-            app:srcCompat="@drawable/ic_baseline_lens_24_heat_on" />
+            app:srcCompat="@drawable/ic_baseline_lens_24_heat_on"
+            android:contentDescription="TODO" />
 
         <ImageView
             android:id="@+id/led_pwr_off"
@@ -209,7 +217,8 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="3dp"
             android:layout_marginEnd="75dp"
-            app:srcCompat="@drawable/ic_baseline_lens_24_heat_off" />
+            app:srcCompat="@drawable/ic_baseline_lens_24_heat_off"
+            android:contentDescription="TODO" />
 
         <Button
             android:id="@+id/btn_power_on"

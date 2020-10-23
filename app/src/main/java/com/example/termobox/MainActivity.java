@@ -25,7 +25,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +32,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,11 +77,6 @@ public class MainActivity<Link> extends AppCompatActivity implements
     private static final int FRAME_OK =32;
     private static final int SEND_ERROR = 33;
 
-    // Присвоение констант для часов (команды и т.п.)
-    private static final byte SYNX_CLOCK = 2;
-    private static final byte ID_SYS_Clock = 4;
-    private static final int SYNX_CLOCK_ERROR = 5; // Ошибка синхронизирования часов
-    private static byte sh_seq=0;//вставляем счетчик пакетов
 
     //(Message ID)-тип сообщения принимаемые с радиообмена
     private static final int Mess_ID1_status = 6; // Статус термобокса
@@ -101,14 +94,15 @@ public class MainActivity<Link> extends AppCompatActivity implements
 
 
 
-
+    static char status;
+    static int error_cod,error_cod_old; // Код ошибки
     static float rerror; //ошибка регулирования
     static float errorabs;//абсолютная ошибка регулирования
     static float temp_set;//задание на регулятор перед рампой
     static float rt_set; // задание на регулятор, после рампы
     static float rt_act; // обратная связь на регулятор
     static float rset_temp; /*задание (град)*/
-
+    static float pout; /*Выходная мощность*/
     //------------------------
     float temp_ext; //температура горячего спая
 
@@ -200,7 +194,7 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
     private Button btnDisconnect;
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch switchEnableBt;
+    private SwitchCompat switchEnableBt;
     private Button btnEnableSearch;
     private Button btn_power_on;
     private Button btn_power_off;
@@ -522,6 +516,15 @@ Atune at = new Atune();
         }
     }
 
+    // Программа преобразования формата byte в формат float
+    public static float byteToFloat (byte[] data, byte ukz)
+    {
+        float float_temp;
+        float_temp=Float.intBitsToFloat(data[ukz+3]<<24 | (data[ukz+2]& 0xFF) << 16 | (data[ukz+1]& 0xFF) << 8 | (data[ukz]& 0xFF));
+        return float_temp;
+
+    }
+
     private void showFrameMessage() {
         frameMessage.setVisibility(View.VISIBLE);
         frameLedControls.setVisibility(View.GONE);
@@ -675,22 +678,39 @@ Atune at = new Atune();
         @Override
         public void handleMessage(Message msg) {
             // Тут второй поток и обработчик поступающих сообщений
-            if (msg.what ==MESSAGE_DEVICE_NAME){
+            byte[] aa = (byte[]) listenEvents(); // Приём данных с блютуса для раскидывания по структурам
+
+
+
+            if (msg.what == MESSAGE_DEVICE_NAME) {
+
+
                 device_name.setText("Tremolos");
-                dig_Temp_RF.setText(String.format("%.1f",temp_set));
-                Toasty.info(MainActivity.this,"Имя прибора",Toasty.LENGTH_SHORT).show();
+                dig_Temp_RF.setText(String.format("%.1f", temp_set));
+                Toasty.info(MainActivity.this, "Device name", Toasty.LENGTH_SHORT).show();
 
 
             }
 
 
-            if (msg.what ==Mess_ID1_status){
-                dig_Temp_RF.setText(String.format("%.1f",temp_set));
-                dig_Temp_PV.setText(String.format("%.1f",temp_ext));
+            if (msg.what == Mess_ID1_status) {
+
+                status= (char) aa[6];
+                error_cod=aa[6+1];
+                p_r.rej_in= (char) aa[6+1+2];
+                temp_set=byteToFloat(aa, (byte) (6+1+2+1));
+                rt_set=byteToFloat(aa, (byte) (6+1+2+1+4));
+                rt_act=byteToFloat(aa, (byte) (6+1+2+1+4+4));
+                sifu_ref=byteToFloat(aa, (byte) (6+1+2+1+4+4+4));
+
+
+                dig_Temp_RF.setText(String.format("%.1f", rt_set));
+                dig_Temp_PV.setText(String.format("%.1f", rt_act));
                 processBar_Power_out.setProgress((int) sifu_ref);
-
+                Toasty.info(MainActivity.this, "Status ID1", Toasty.LENGTH_SHORT).show();
             }
-            if (msg.what ==SEND_ERROR){}
+            if (msg.what == SEND_ERROR) {
+            }
 
 
         }
@@ -866,7 +886,7 @@ Atune at = new Atune();
 
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
-
+                                            rxBus.send(new SimpleEvent<>(mmB));
                                     switch (mmB[5])
                                             {
                                                 case 0: {handler.sendEmptyMessage(MESSAGE_DEVICE_NAME);break;}
@@ -877,7 +897,7 @@ Atune at = new Atune();
                                                 case 20: {handler.sendEmptyMessage(Mess_ID20_status);break;} // пришёл статус сообщение №20 - Запрос чтения бортового параметра
 
                                             }
-                                                rxBus.send(new SimpleEvent<>(mmB));
+
 
                                         }
                                     }
