@@ -80,6 +80,15 @@ public class Link{
     //Передача команды
     public void send_cmd(byte cmd, byte sys, byte comp)
     {
+        //0x01 cmd_on(); - Команда включить
+        //0x02 cmd_off();- Команда выключить
+        //0x04 tm.reset_flt();- Команда сброс ошибки
+        //0x08 save_par(); - Команда сохранения параметров
+        //0x10 tm.set_default(); - команда выставление настроек по умолчанию
+        //send_ack(ce->cmd, 0); - ответ на команду 0 если всё хорошо
+
+       // Final_link
+
 
     }
     //     cmd_exec(cmd, sys, comp);

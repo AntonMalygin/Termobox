@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,11 +135,10 @@ public class MainActivity<Link> extends AppCompatActivity implements
     float u_7;/*Напряжение питания платы термопары*/
     float load_cpu;//загрузка цпу
 
+    String BoardName = "";
+
     long[] t_task = new long[10];//Буфер времени выполнения задач
-
-
-
-
+    private Object UTFDataFormatException;
 
 
     static class cicl_list_s {
@@ -196,8 +197,8 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private SwitchCompat switchEnableBt;
     private Button btnEnableSearch;
-    private Button btn_power_on;
-    private Button btn_power_off;
+    private ImageButton btn_power_on;
+    private ImageButton btn_power_off;
 
 
     private ProgressBar pbProgress;
@@ -438,6 +439,7 @@ Atune at = new Atune();
 
 
     }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onClick(View v) {
@@ -454,6 +456,17 @@ Atune at = new Atune();
             }
             // Отображения списка сопряженных устройств
             showFrameControls();
+        }
+
+        if (v.equals(btn_power_on)){
+            status(true);
+
+
+        }
+        if (v.equals(btn_power_off)){
+            status(false);
+
+
         }
 
     }
@@ -479,6 +492,8 @@ Atune at = new Atune();
 
         return mmC;
     }
+
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -524,6 +539,28 @@ Atune at = new Atune();
         return float_temp;
 
     }
+// Установка статуса или сброс его
+
+    public char get_status(){return status;}
+
+    public void status(boolean sts) {
+        if (!sts) {
+            status=0;
+            led_pwr_off.setVisibility(View.VISIBLE);
+            led_pwr_on.setVisibility(View.INVISIBLE);
+            Toasty.info(MainActivity.this, "Выключение печки", Toasty.LENGTH_SHORT).show();
+        }
+
+        if (sts) {
+            status=1;
+            led_pwr_off.setVisibility(View.INVISIBLE);
+            led_pwr_on.setVisibility(View.VISIBLE);
+            Toasty.info(MainActivity.this, "Включение печки", Toasty.LENGTH_SHORT).show();
+                 }
+
+
+        }
+
 
     private void showFrameMessage() {
         frameMessage.setVisibility(View.VISIBLE);
@@ -671,6 +708,7 @@ Atune at = new Atune();
 
 
     @SuppressLint("HandlerLeak")
+
     private final Handler outHandler = new Handler() {
 
         @RequiresApi(api = Build.VERSION_CODES.N)
@@ -685,9 +723,12 @@ Atune at = new Atune();
             if (msg.what == MESSAGE_DEVICE_NAME) {
 
 
-                device_name.setText("Tremolos");
-                dig_Temp_RF.setText(String.format("%.1f", temp_set));
-                Toasty.info(MainActivity.this, "Device name", Toasty.LENGTH_SHORT).show();
+
+
+
+                device_name.setText(BoardName);
+                dig_Temp_RF.setText(String.format("%.1f", rt_set));
+
 
 
             }
@@ -696,6 +737,14 @@ Atune at = new Atune();
             if (msg.what == Mess_ID1_status) {
 
                 status= (char) aa[6];
+                if (status==0){
+                    led_pwr_on.setVisibility(View.INVISIBLE);
+                    led_pwr_off.setVisibility(View.VISIBLE);
+                }
+                else {
+                    led_pwr_on.setVisibility(View.VISIBLE);
+                    led_pwr_off.setVisibility(View.INVISIBLE);
+                }
                 error_cod=aa[6+1];
                 p_r.rej_in= (char) aa[6+1+2];
                 temp_set=byteToFloat(aa, (byte) (6+1+2+1));
@@ -707,7 +756,7 @@ Atune at = new Atune();
                 dig_Temp_RF.setText(String.format("%.1f", rt_set));
                 dig_Temp_PV.setText(String.format("%.1f", rt_act));
                 processBar_Power_out.setProgress((int) sifu_ref);
-                Toasty.info(MainActivity.this, "Status ID1", Toasty.LENGTH_SHORT).show();
+
             }
             if (msg.what == SEND_ERROR) {
             }
@@ -838,10 +887,9 @@ Atune at = new Atune();
             super.run();
             //store for the stream
             byte[] mmBuffer = new byte[60];
-            int numBytes; // Количество байт принятых из read()
+            int numBytes,len; // Количество байт принятых из read() и длина поля данных
             final byte [] mmB = new byte[60];
-            short len;
-            len=0;
+
 
             byte ukz,i;
             int crc_in, crc_temp, crc1, crc2 ,crc3,crc5,crc4;
@@ -887,9 +935,11 @@ Atune at = new Atune();
                                         ukz = 0;
                                         if (crc_temp == crc_in) {
                                             rxBus.send(new SimpleEvent<>(mmB));
+                                            len=mmB[1];
                                     switch (mmB[5])
                                             {
-                                                case 0: {handler.sendEmptyMessage(MESSAGE_DEVICE_NAME);break;}
+                                                case 0: {handler.sendEmptyMessage(MESSAGE_DEVICE_NAME);BoardName = new String(mmB,6,13,StandardCharsets.UTF_8);break;}
+
                                                 case 1: {handler.sendEmptyMessage(Mess_ID1_status);break;} // пришёл статус сообщение №1
                                                 case 2: {handler.sendEmptyMessage(Mess_ID2_status);break;} // пришёл статус сообщение №2 - Передача данных при работе по расписанию
                                                 case 16: {handler.sendEmptyMessage(Mess_ID16_status);break;} // пришёл статус сообщение №16 - Пришла команда

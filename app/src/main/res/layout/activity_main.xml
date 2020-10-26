@@ -9,6 +9,8 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
+
+
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switch_enable_bt"
         android:text="@string/bluetooth_on_off"
@@ -76,6 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
+            android:background="@drawable/button_info_selector"
             android:text="@string/disconnect" />
 
         <Button
@@ -85,7 +88,7 @@
             android:layout_below="@id/btn_power_off"
             android:layout_marginTop="30dp"
             android:layout_centerHorizontal="true"
-
+            android:background="@drawable/button_primary_selector"
             android:text="@string/Programm_Termobox" />
 
         <TextView
@@ -205,7 +208,8 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="75dp"
             app:srcCompat="@drawable/ic_baseline_lens_24_heat_on"
-            android:contentDescription="TODO" />
+            android:contentDescription="TODO"
+            android:visibility="invisible"/>
 
         <ImageView
             android:id="@+id/led_pwr_off"
@@ -218,29 +222,34 @@
             android:layout_marginTop="3dp"
             android:layout_marginEnd="75dp"
             app:srcCompat="@drawable/ic_baseline_lens_24_heat_off"
-            android:contentDescription="TODO" />
+            android:contentDescription="TODO"
+            android:visibility="invisible"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_power_on"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
             android:layout_below="@+id/led_pwr_on"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="69dp"
             android:layout_marginTop="20dp"
+            android:background="@drawable/ic_baseline_power_on"
+            android:src="@drawable/ic_baseline_power_on"
 
             android:text="Включить печку" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_power_off"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
             android:layout_below="@+id/led_pwr_off"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="5dp"
-            android:text="Выключить печку"
-            android:visibility="visible" />
+            android:layout_marginTop="22dp"
+
+            android:layout_marginEnd="65dp"
+            android:background="@drawable/ic_baseline_power_off"
+            android:src="@drawable/ic_baseline_power_off"
+            android:text="Выключить печку" />
 
 
     </RelativeLayout>
