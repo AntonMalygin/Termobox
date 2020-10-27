@@ -460,12 +460,12 @@ Atune at = new Atune();
 
         if (v.equals(btn_power_on)){
             status(true);
-
+            link.send_cmd((byte) get_status()); // Отправляем команду на включение печки
 
         }
         if (v.equals(btn_power_off)){
             status(false);
-
+            link.send_cmd((byte) get_status());// Отправляем команду на выключение печки
 
         }
 
@@ -892,7 +892,7 @@ Atune at = new Atune();
 
 
             byte ukz,i;
-            int crc_in, crc_temp, crc1, crc2 ,crc3,crc5,crc4;
+            int crc_in, crc_temp;
             ukz=0;
 
 

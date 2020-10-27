@@ -7,12 +7,6 @@ public class Link{
 
     private byte target_system;      // получатель
     private byte target_component;   // получатель
-    private byte cmd;            // команда
-    private byte param_index;        // индекс параметра
-
-    private byte np;         // индекс параметра
-    private byte type;       // тип параметра
-    private float val;       // значение
 
 
     public byte stx=0x31;    //начало пакета
@@ -38,7 +32,7 @@ public class Link{
     public void cmd_exec(byte cmd, byte sys, byte comp) {
         this.target_system = sys;
         this.target_component = comp;
-        this.cmd = cmd;
+        // команда
     }
 
     //------------------------Запрос чтения бортового параметра
@@ -46,7 +40,7 @@ public class Link{
 
         this.target_system = sys;
         this.target_component = comp;
-        this.param_index = par;
+        // индекс параметра
     }
 
 
@@ -63,9 +57,9 @@ public class Link{
     public void set_par_link(float dat, byte par, byte tpe, byte sys, byte comp) {
         this.sys = sys;
         this.comp = comp;
-        this.np = par;
-        this.type = tpe;
-        this.val = dat;
+        // индекс параметра
+        // тип параметра
+        // значение
     }
 
     //------------------------------	-------------Установить параметр
@@ -78,8 +72,10 @@ public class Link{
 
 
     //Передача команды
-    public void send_cmd(byte cmd, byte sys, byte comp)
+    public void send_cmd(byte cmd)
     {
+
+
         //0x01 cmd_on(); - Команда включить
         //0x02 cmd_off();- Команда выключить
         //0x04 tm.reset_flt();- Команда сброс ошибки
@@ -117,37 +113,25 @@ public class Link{
 
 
     //--------------------
-    /*public void Final_link(Object object, byte msg) throws IOException {
+    public int Final_link(byte[] bytes, byte msg,byte len){
 
-        link_pack lhead = new link_pack();
-        int msgsize = getObjectSize(object);
-        int headsize = Marshal.SizeOf(typeof(link_pack));
-        int len = msgsize + headsize + 2;
-        byte[] bf = new byte[len];
-        lhead.stx = Stx;
-        lhead.len = (byte)msgsize;
-        lhead.seq = seq++;
-        lhead.sys = Sys_ID;
-        lhead.comp = Comp_ID;
-        lhead.msg = msg;
-        byte[] t1 = serialize(lhead);
-        Array.Copy(t1, 0, bf, 0, headsize);
-        t1 = serialize(object);
-        Array.Copy(t1, 0, bf, headsize, msgsize);
-        short crc = (short) Crc_calculate(bf, (byte) 1, (byte)(len - 3));
-        bf[len - 2] = (byte)crc;
-        bf[len - 1] = (byte)(crc >> 8);
-        try
-        {
-            port.Write(bf, 0, len);
-        }
-        catch (Exception e)
-        {
+byte[] mm_t = new byte[len+8];
+mm_t[0]=stx;
+mm_t[1]=len;
+mm_t[2]=seq++;
+mm_t[3]=sys;
+mm_t[4]=comp;
+mm_t[5]=msg;
 
-            //              throw;
-        }
+      //  int crc = Crc_calculate();
 
-*/
+
+
+
+return len+8;
+    }
+
+
 
 
 }
