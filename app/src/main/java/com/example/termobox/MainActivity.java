@@ -460,12 +460,21 @@ Atune at = new Atune();
 
         if (v.equals(btn_power_on)){
             status(true);
-            link.send_cmd((byte) get_status()); // Отправляем команду на включение печки
 
+            if (connectedThread != null && connectThread.isConnect())
+            {
+                connectedThread.write(link.send_cmd((byte) get_status()));// Отправляем команду на включение печки
+
+            }
         }
         if (v.equals(btn_power_off)){
             status(false);
-            link.send_cmd((byte) get_status());// Отправляем команду на выключение печки
+            if (connectedThread != null && connectThread.isConnect())
+            {
+                connectedThread.write(link.send_cmd((byte) get_status()));// Отправляем команду на выключение печки
+
+            }
+
 
         }
 
@@ -548,14 +557,14 @@ Atune at = new Atune();
             status=0;
             led_pwr_off.setVisibility(View.VISIBLE);
             led_pwr_on.setVisibility(View.INVISIBLE);
-            Toasty.info(MainActivity.this, "Выключение печки", Toasty.LENGTH_SHORT).show();
+           // Toasty.info(MainActivity.this, "Выключение печки", Toasty.LENGTH_SHORT).show();
         }
 
         if (sts) {
             status=1;
             led_pwr_off.setVisibility(View.INVISIBLE);
             led_pwr_on.setVisibility(View.VISIBLE);
-            Toasty.info(MainActivity.this, "Включение печки", Toasty.LENGTH_SHORT).show();
+           // Toasty.info(MainActivity.this, "Включение печки", Toasty.LENGTH_SHORT).show();
                  }
 
 
@@ -721,16 +730,8 @@ Atune at = new Atune();
 
 
             if (msg.what == MESSAGE_DEVICE_NAME) {
-
-
-
-
-
                 device_name.setText(BoardName);
                 dig_Temp_RF.setText(String.format("%.1f", rt_set));
-
-
-
             }
 
 
@@ -758,7 +759,24 @@ Atune at = new Atune();
                 processBar_Power_out.setProgress((int) sifu_ref);
 
             }
+            if(msg.what == Mess_ID2_status){
+                Toasty.info(MainActivity.this, "Mess_ID2_status", Toasty.LENGTH_SHORT).show();
+            }
+
+            if(msg.what == Mess_ID16_status){
+                Toasty.info(MainActivity.this, "Mess_ID16_status", Toasty.LENGTH_SHORT).show();
+            }
+
+            if(msg.what == Mess_ID17_status){
+                Toasty.info(MainActivity.this, "Mess_ID17_status", Toasty.LENGTH_SHORT).show();
+            }
+
+            if(msg.what == Mess_ID20_status){
+                Toasty.info(MainActivity.this, "Mess_ID20_status", Toasty.LENGTH_SHORT).show();
+            }
+
             if (msg.what == SEND_ERROR) {
+                Toasty.error(MainActivity.this, "Send error", Toasty.LENGTH_SHORT).show();
             }
 
 

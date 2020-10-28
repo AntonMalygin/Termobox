@@ -12,8 +12,8 @@ public class Link{
     public byte stx=0x31;    //начало пакета
     public byte len;    //длина поля данных без контрольной суммы
     public byte seq;    //счетчик пакетов
-    public byte sys= (byte) 24;    //(System ID)-ид системы
-    public byte comp=0;   //(Component ID)-ид компонента
+    public byte sys= (byte) 0x24;    //(System ID)-ид системы
+    public byte comp=0x10;   //(Component ID)-ид компонента
     public byte msg;    //(Message ID)-ид сообщения
     public byte[] data;	//данные и контрольная сумма
 
@@ -72,9 +72,14 @@ public class Link{
 
 
     //Передача команды
-    public void send_cmd(byte cmd)
+    public byte[] send_cmd(byte cmd)
     {
-
+        data = new byte[1];
+         if (cmd==0x01) data[0] = 0x01;
+        if (cmd==0x02) data[0] = 0x02;
+        if (cmd==0x04)data[0]=0x04;
+        if (cmd==0x08)data[0]=0x08;
+        if (cmd==0x10)data[0]=0x10;
 
         //0x01 cmd_on(); - Команда включить
         //0x02 cmd_off();- Команда выключить
@@ -82,11 +87,13 @@ public class Link{
         //0x08 save_par(); - Команда сохранения параметров
         //0x10 tm.set_default(); - команда выставление настроек по умолчанию
         //send_ack(ce->cmd, 0); - ответ на команду 0 если всё хорошо
+byte[] tmp = new byte[8];
+tmp=Final_link(data,16,1);
 
-       // Final_link
-
-
+return tmp;
     }
+
+
     //     cmd_exec(cmd, sys, comp);
     //     Final_link(rq, (byte)16);
 
@@ -113,22 +120,26 @@ public class Link{
 
 
     //--------------------
-    public int Final_link(byte[] bytes, byte msg,byte len){
+    public byte[] Final_link(byte[] bytes, int msg,int len){
 
 byte[] mm_t = new byte[len+8];
 mm_t[0]=stx;
-mm_t[1]=len;
+mm_t[1]= (byte) len;
 mm_t[2]=seq++;
 mm_t[3]=sys;
 mm_t[4]=comp;
-mm_t[5]=msg;
+mm_t[5]= (byte) msg;
 
+System.arraycopy(bytes,0,mm_t,6,len);
       //  int crc = Crc_calculate();
 
+  //      crc_temp = ((mmB[mmB[1]+7]&0xFF)<<8)+(mmB[mmB[1]+6]&0xFF);
 
+        int crc = Crc_calculate(mm_t, 1, mm_t[1] + 5);
+        mm_t[len+7]= (byte) (crc>>8);
+        mm_t[len+6]=(byte) (crc);
 
-
-return len+8;
+return mm_t;
     }
 
 
