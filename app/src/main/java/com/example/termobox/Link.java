@@ -32,6 +32,7 @@ public class Link{
     public void cmd_exec(byte cmd, byte sys, byte comp) {
         this.target_system = sys;
         this.target_component = comp;
+
         // команда
     }
 
@@ -74,12 +75,16 @@ public class Link{
     //Передача команды
     public byte[] send_cmd(byte cmd)
     {
-        data = new byte[1];
-         if (cmd==0x01) data[0] = 0x01;
-        if (cmd==0x02) data[0] = 0x02;
-        if (cmd==0x04)data[0]=0x04;
-        if (cmd==0x08)data[0]=0x08;
-        if (cmd==0x10)data[0]=0x10;
+        data = new byte[3];
+
+        data[0]=sys;
+        data[1]=comp;
+
+         if (cmd==0x01) data[2] = 0x01;
+        if (cmd==0x02) data[2] = 0x02;
+        if (cmd==0x04)data[2]=0x04;
+        if (cmd==0x08)data[2]=0x08;
+        if (cmd==0x10)data[2]=0x10;
 
         //0x01 cmd_on(); - Команда включить
         //0x02 cmd_off();- Команда выключить
@@ -88,7 +93,7 @@ public class Link{
         //0x10 tm.set_default(); - команда выставление настроек по умолчанию
         //send_ack(ce->cmd, 0); - ответ на команду 0 если всё хорошо
 byte[] tmp = new byte[8];
-tmp=Final_link(data,16,1);
+tmp=Final_link(data,16,3);
 
 return tmp;
     }

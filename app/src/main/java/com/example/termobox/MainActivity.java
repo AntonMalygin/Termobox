@@ -120,6 +120,16 @@ public class MainActivity<Link> extends AppCompatActivity implements
     static short sh_minut_all; //прошло времени всего
     static char num;	// номер текущего шага
 
+    static byte step;	// номер текущего шага
+    static byte step_total; // всего шагов
+
+    static short time_step; // время шага
+    static short left_time_step; //осталось времени в текущем шаге
+
+    static short total_time; // общее время цикла
+    static short left_total_time; //осталось
+
+
     float cmd_pr; /*10-Сохранить параметры, 15-По умолчанию, 20- прочитать из eeprom*/
     float s_freq; // частота сети в гц
     float s_raw; // полупериод в попугаях
@@ -197,6 +207,7 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private SwitchCompat switchEnableBt;
     private Button btnEnableSearch;
+    private Button btnStartSecond;
     private ImageButton btn_power_on;
     private ImageButton btn_power_off;
 
@@ -219,6 +230,12 @@ par_s p_r = new par_s(); // Параметры в ОЗУ
     private TextView dig_Temp_PV;
     private TextView stepN;
     private TextView dig_StepN;
+    private TextView dig_Time_StepN;
+    private TextView total_stepN;
+    private TextView total_dig_time;
+    private TextView total_dig_left_time;
+
+
     private TextView power_out;
     private ProgressBar processBar_Power_out;
     private ImageView led_pwr_on;
@@ -327,7 +344,7 @@ Atune at = new Atune();
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-
+        Log.d(TAG,"MainActivity onCreate");
 
             rxBus = ((MainApp) getApplication()).getRxBus();
             service = new SomethingService(rxBus);
@@ -340,6 +357,9 @@ Atune at = new Atune();
 
         switchEnableBt = findViewById(R.id.switch_enable_bt);
         btnEnableSearch = findViewById(R.id.btn_enable_search);
+
+        btnStartSecond = findViewById(R.id.btnStartSecond);
+
         pbProgress = findViewById(R.id.pb_progress);
         listBtDevices = findViewById(R.id.lv_bt_device);
 
@@ -353,6 +373,13 @@ Atune at = new Atune();
         dig_Temp_PV = findViewById(R.id.dig_Temp_PV);
         stepN = findViewById(R.id.stepN);
         dig_StepN = findViewById(R.id.dig_StepN);
+        dig_Time_StepN = findViewById(R.id.dig_Time_StepN);
+        total_stepN = findViewById(R.id.total_stepN);
+        total_dig_time = findViewById(R.id.total_dig_time);
+        total_dig_left_time = findViewById(R.id.total_dig_left_time);
+
+
+
         power_out = findViewById(R.id.power_out);
         processBar_Power_out = findViewById(R.id.processBar_Power_out);
 
@@ -370,16 +397,22 @@ Atune at = new Atune();
 
         btnDisconnect.setOnClickListener(this);
 
+        btnStartSecond.setOnClickListener(this);
 
         bluetoothDevices = new ArrayList<>();
 
+
+
         // перейти во вторую активность
-        ((Button) findViewById(R.id.btnStartSecond)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SecondActivity.start(MainActivity.this);
-            }
-        });
+   //     ((Button) findViewById(R.id.btnStartSecond)).setOnClickListener(new View.OnClickListener() {
+     //       @Override
+       //     public void onClick(View v) {
+                //SecondActivity.start(MainActivity.this);
+         //       Intent intent = new Intent(this, SecondActivity.class);
+           //     startActivity(intent);
+
+           // }
+       // });
 
 
 
@@ -422,12 +455,24 @@ Atune at = new Atune();
     }
 
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG,"MainActivity onRestart");
+        if (connectedThread != null && connectThread.isConnect())
+        {
+            showFrameLedControls();
+
+        }
+
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         disposable.dispose();
         service.stopService();
+        Log.d(TAG,"MainActivity onDestroy");
         if (connectThread != null) {
             connectThread.cancel();
         }
@@ -463,7 +508,7 @@ Atune at = new Atune();
 
             if (connectedThread != null && connectThread.isConnect())
             {
-                connectedThread.write(link.send_cmd((byte) get_status()));// Отправляем команду на включение печки
+                connectedThread.write(link.send_cmd((byte) 0x01));// Отправляем команду на включение печки
 
             }
         }
@@ -471,14 +516,19 @@ Atune at = new Atune();
             status(false);
             if (connectedThread != null && connectThread.isConnect())
             {
-                connectedThread.write(link.send_cmd((byte) get_status()));// Отправляем команду на выключение печки
+                connectedThread.write(link.send_cmd((byte) 0x02));// Отправляем команду на выключение печки
 
             }
 
 
         }
+        // перейти во вторую активность вариант №2
+if (v.equals(btnStartSecond)){
+    Intent intent = new Intent(this,SecondActivity.class);
+    startActivity(intent);
+}
 
-    }
+    } // end onClick();
 
 
     /**
@@ -667,6 +717,7 @@ Atune at = new Atune();
         }
     };
 
+
     /**
      * Запрос на разрешение данных о местоположении (для Marshmallow 6.0)
      */
@@ -705,6 +756,18 @@ Atune at = new Atune();
                 }
             }
         }
+    }
+
+
+
+    public static String convertByteToString(byte byteValue)
+    {
+
+        // Convert byte value to String value
+        // using + operator method
+
+        return ("" + byteValue);
+
     }
 
     @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd.MM.yy");
@@ -760,7 +823,15 @@ Atune at = new Atune();
 
             }
             if(msg.what == Mess_ID2_status){
-                Toasty.info(MainActivity.this, "Mess_ID2_status", Toasty.LENGTH_SHORT).show();
+
+
+
+                dig_StepN.setText(convertByteToString(step));
+                dig_Time_StepN.setText(convertByteToString((byte) left_time_step));
+                total_dig_time.setText(convertByteToString((byte) total_time));
+                total_dig_left_time.setText(convertByteToString((byte) left_total_time));
+                //  Toasty.info(MainActivity.this, "Mess_ID2_status", Toasty.LENGTH_SHORT).show();
+
             }
 
             if(msg.what == Mess_ID16_status){
@@ -768,7 +839,18 @@ Atune at = new Atune();
             }
 
             if(msg.what == Mess_ID17_status){
-                Toasty.info(MainActivity.this, "Mess_ID17_status", Toasty.LENGTH_SHORT).show();
+                if (aa[7]==0){
+                    switch (aa[6]) {
+
+                        case 0x01:   Toasty.success(MainActivity.this, "Команда включить прошла успешно", Toasty.LENGTH_SHORT).show();break;
+                        case 0x02:   Toasty.success(MainActivity.this, "Команда выключить прошла успешно", Toasty.LENGTH_SHORT).show();break;
+                        case 0x04:   Toasty.success(MainActivity.this, "Сброс ошибки выполнен", Toasty.LENGTH_SHORT).show();break;
+                        case 0x08:   Toasty.success(MainActivity.this, "Параметры сохранены", Toasty.LENGTH_SHORT).show();break;
+                        case 0x10:   Toasty.success(MainActivity.this, "Сброс к заводским параметрам выполнен", Toasty.LENGTH_SHORT).show();break;
+
+                    }
+                }
+
             }
 
             if(msg.what == Mess_ID20_status){
@@ -959,9 +1041,23 @@ Atune at = new Atune();
                                                 case 0: {handler.sendEmptyMessage(MESSAGE_DEVICE_NAME);BoardName = new String(mmB,6,13,StandardCharsets.UTF_8);break;}
 
                                                 case 1: {handler.sendEmptyMessage(Mess_ID1_status);break;} // пришёл статус сообщение №1
-                                                case 2: {handler.sendEmptyMessage(Mess_ID2_status);break;} // пришёл статус сообщение №2 - Передача данных при работе по расписанию
+                                                case 2: {
+                                                    step=mmB[6];                        //Текущий шаг
+                                                    step_total= mmB[6+1];               //всего шагов
+
+                                                    time_step=mmB[6+1+1];               //время шага
+                                                    left_time_step=mmB[6+1+1+2];        //осталось времени в текущем шаге
+
+                                                    total_time=mmB[6+1+1+2+2];          //общее время цикла
+                                                    left_total_time=mmB[6+1+1+2+2+2];   //осталось
+
+
+                                                    handler.sendEmptyMessage(Mess_ID2_status);break;} // пришёл статус сообщение №2 - Передача данных при работе по расписанию
+
                                                 case 16: {handler.sendEmptyMessage(Mess_ID16_status);break;} // пришёл статус сообщение №16 - Пришла команда
+
                                                 case 17: {handler.sendEmptyMessage(Mess_ID17_status);break;} // пришёл статус сообщение №17 - Подтверждение выполнения команды
+
                                                 case 20: {handler.sendEmptyMessage(Mess_ID20_status);break;} // пришёл статус сообщение №20 - Запрос чтения бортового параметра
 
                                             }

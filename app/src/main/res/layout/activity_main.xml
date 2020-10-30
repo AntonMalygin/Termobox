@@ -155,7 +155,7 @@
             android:layout_below="@+id/temp_PV"
             android:layout_marginStart="8dp"
             android:layout_marginTop="14dp"
-            android:text="Номер шага"
+            android:text="Номер/ время в шаге"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
@@ -164,10 +164,100 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/temp_PV"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="250dp"
+
+            android:layout_marginStart="20dp"
             android:layout_marginTop="14dp"
-            android:layout_marginEnd="80dp"
+
+            android:layout_toEndOf="@+id/stepN"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/dig_Time_StepN"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_PV"
+            android:layout_marginStart="60dp"
+            android:layout_marginTop="14dp"
+
+            android:layout_toEndOf="@+id/dig_StepN"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_dig_time_min3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/temp_PV"
+
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:text="мин"
+            android:layout_toEndOf="@+id/dig_Time_StepN"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_stepN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stepN"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="14dp"
+            android:text="Общее время цикла"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_dig_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dig_StepN"
+
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+
+            android:layout_toEndOf="@+id/stepN"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_dig_time_min"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dig_StepN"
+
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:text="мин"
+            android:layout_toEndOf="@+id/total_dig_time"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_dig_left_time"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dig_Time_StepN"
+            android:layout_marginStart="60dp"
+            android:layout_marginTop="14dp"
+
+            android:layout_toEndOf="@+id/total_dig_time"
+            android:textColor="@color/color_black"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/total_dig_time_min1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dig_StepN"
+
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="14dp"
+            android:text="мин"
+            android:layout_toEndOf="@+id/total_dig_left_time"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
 
@@ -175,9 +265,9 @@
             android:id="@+id/power_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/stepN"
+            android:layout_below="@+id/total_stepN"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="15dp"
             android:text="Выход регулятора"
             android:textColor="@color/color_black"
             android:textSize="15sp" />
@@ -186,14 +276,12 @@
         <ProgressBar
             android:id="@+id/processBar_Power_out"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-
-
             android:layout_height="wrap_content"
             android:layout_below="@id/power_out"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="20dp"
             android:max="100"
             android:progressTint="#050505"

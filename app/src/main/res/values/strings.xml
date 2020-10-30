@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Termobox</string>
+    <string name="app_name">Termobox v1.1</string>
     <string name="bluetooth_on_off">Вкл./Выкл. Bluetooth</string>
     <string name="bluetooth_off">Bluetooth выключен</string>
     <string name="bluetooth_not_supported">Bluetooth не поддерживается</string>
