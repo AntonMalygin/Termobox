@@ -526,6 +526,8 @@ Atune at = new Atune();
 if (v.equals(btnStartSecond)){
     Intent intent = new Intent(this,SecondActivity.class);
     startActivity(intent);
+
+
 }
 
     } // end onClick();

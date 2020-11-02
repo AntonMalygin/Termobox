@@ -12,4 +12,10 @@
     <string name="stop_search">Остановить поиск</string>
     <string name="start_search">Начать поиск</string>
     <string name="Programm_Termobox">Программирование Термобокса</string>
+    <string name="num_par">Номер параметра</string>
+    <string name="acc_lvl">Уровень доступа к параметру</string>
+    <string name="value_par">Текущее значение параметра</string>
+    <string name="min_val_par">Минимальное значение параметра</string>
+    <string name="max_val_par">Максимальное значение параметра</string>
+    <string name="def_val">Значение параметра по умолчанию</string>
 </resources>
